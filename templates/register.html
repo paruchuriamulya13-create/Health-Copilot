@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Create Account - Health Copilot
+    </title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eaf6ff,
+                    #f7fbff
+                );
+
+            color: #17324d;
+        }
+
+        .card {
+
+            width: 100%;
+
+            max-width: 430px;
+
+            background: white;
+
+            border-radius: 18px;
+
+            padding: 34px;
+
+            box-shadow:
+                0 10px 35px
+                rgba(20, 70, 110, 0.14);
+        }
+
+        .logo {
+
+            width: 68px;
+
+            height: 68px;
+
+            margin:
+                0 auto 16px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 18px;
+
+            background: #e8f5ff;
+
+            font-size: 34px;
+        }
+
+        h1 {
+
+            margin: 0 0 8px;
+
+            text-align: center;
+
+            color: #116db3;
+        }
+
+        .subtitle {
+
+            margin:
+                0 0 28px;
+
+            text-align: center;
+
+            color: #6a7f90;
+        }
+
+        label {
+
+            display: block;
+
+            margin:
+                16px 0 7px;
+
+            font-weight: 700;
+        }
+
+        input {
+
+            width: 100%;
+
+            padding:
+                13px 14px;
+
+            border:
+                1px solid #cbdce8;
+
+            border-radius: 9px;
+
+            font-size: 16px;
+
+            outline: none;
+        }
+
+        input:focus {
+
+            border-color: #1675bb;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(22,117,187,.1);
+        }
+
+        button {
+
+            width: 100%;
+
+            margin-top: 22px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            padding: 14px;
+
+            background: #0b74c9;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+
+            background: #095e9f;
+        }
+
+        .error {
+
+            margin-bottom: 16px;
+
+            padding:
+                12px 14px;
+
+            border-radius: 8px;
+
+            background: #fff1ef;
+
+            color: #9a2016;
+
+            border-left:
+                4px solid #d93025;
+        }
+
+        .help {
+
+            margin-top: 12px;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+            text-align: center;
+
+            color: #718799;
+        }
+
+        .footer-link {
+
+            margin-top: 20px;
+
+            text-align: center;
+
+            color: #62798b;
+        }
+
+        .footer-link a {
+
+            color: #0b74c9;
+
+            text-decoration: none;
+
+            font-weight: 700;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="card">
+
+    <div class="logo">
+        👤
+    </div>
+
+    <h1>
+        Create Account
+    </h1>
+
+    <p class="subtitle">
+        Register for Health Copilot
+    </p>
+
+
+    {% if error %}
+
+        <div class="error">
+            {{ error }}
+        </div>
+
+    {% endif %}
+
+
+    <form
+        method="POST"
+        action="{{ url_for('register') }}"
+    >
+
+        <label
+            for="login_id"
+        >
+            Email or Mobile Number
+        </label>
+
+
+        <input
+            id="login_id"
+            name="login_id"
+            type="text"
+            autocomplete="username"
+            placeholder="example@email.com or 9876543210"
+            required
+        >
+
+
+        <label
+            for="password"
+        >
+            Password
+        </label>
+
+
+        <input
+            id="password"
+            name="password"
+            type="password"
+            minlength="6"
+            autocomplete="new-password"
+            placeholder="At least 6 characters"
+            required
+        >
+
+
+        <label
+            for="confirm_password"
+        >
+            Confirm Password
+        </label>
+
+
+        <input
+            id="confirm_password"
+            name="confirm_password"
+            type="password"
+            minlength="6"
+            autocomplete="new-password"
+            placeholder="Re-enter your password"
+            required
+        >
+
+
+        <button type="submit">
+            Create Account
+        </button>
+
+    </form>
+
+
+    <div class="help">
+        No database is used for login.
+        User accounts are stored locally in a JSON file,
+        and passwords are stored as secure hashes.
+    </div>
+
+
+    <div class="footer-link">
+
+        Already have an account?
+
+        <a href="{{ url_for('login') }}">
+            Login
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
