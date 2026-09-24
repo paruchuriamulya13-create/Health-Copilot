@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Medicine Reminder - Health Copilot</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1 id="appTitle">Health Copilot</h1>
+        <p id="appDescription">Your personal health assistant</p>
+    </div>
+
+    <div class="header-actions">
+        <select id="languageSelect" onchange="changeLanguage()">
+            <option value="en">English</option>
+            <option value="te">తెలుగు</option>
+            <option value="hi">हिन्दी</option>
+            <option value="ta">தமிழ்</option>
+            <option value="kn">ಕನ್ನಡ</option>
+        </select>
+
+        <button class="home-button" onclick="goHome()">
+            🏠 Home
+        </button>
+    </div>
+</header>
+
+<main class="container">
+
+    <div class="page-title">
+        <h2>💊 Medicine Reminder</h2>
+        <p>Set reminders so you don't forget your medicines.</p>
+    </div>
+
+    <!-- ADD MEDICINE -->
+    <section class="card">
+
+        <h2>➕ Add Medicine</h2>
+
+        <label for="medicineName">
+            Medicine Name
+        </label>
+
+        <input
+            type="text"
+            id="medicineName"
+            placeholder="Example: Paracetamol"
+        >
+
+        <label for="medicineTime">
+            Reminder Time
+        </label>
+
+        <input
+            type="time"
+            id="medicineTime"
+        >
+
+        <label for="medicineFrequency">
+            Frequency
+        </label>
+
+        <select id="medicineFrequency">
+
+            <option value="daily">
+                Every Day
+            </option>
+
+            <option value="weekdays">
+                Monday - Friday
+            </option>
+
+            <option value="weekends">
+                Saturday - Sunday
+            </option>
+
+            <option value="once">
+                Once
+            </option>
+
+        </select>
+
+        <label for="medicineDose">
+            Dose
+        </label>
+
+        <input
+            type="text"
+            id="medicineDose"
+            placeholder="Example: 1 tablet"
+        >
+
+        <button onclick="addMedicineReminder()">
+            🔔 Add Reminder
+        </button>
+
+        <div id="reminderMessage" class="result" style="display:none;"></div>
+
+    </section>
+
+
+    <!-- ACTIVE REMINDERS -->
+    <section class="card">
+
+        <div class="section-header">
+
+            <div>
+                <h2>🔔 My Medicine Reminders</h2>
+                <p>Your saved medicine reminders.</p>
+            </div>
+
+            <button onclick="requestNotificationPermission()">
+                🔔 Enable Notifications
+            </button>
+
+        </div>
+
+        <div id="reminderList">
+
+            <div class="empty-reminders">
+                No medicine reminders added yet.
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- INFORMATION -->
+    <section class="card reminder-info">
+
+        <h2>⚠️ Reminder Information</h2>
+
+        <ul>
+            <li>Keep your medicines in their original packaging.</li>
+            <li>Take medicines according to your doctor's instructions.</li>
+            <li>Do not change your dose based only on this reminder.</li>
+            <li>Browser notifications must be enabled for alerts.</li>
+        </ul>
+
+    </section>
+
+</main>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadMedicineReminders();
+    });
+</script>
+
+</body>
+</html>
