@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Health Copilot</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<header>
+
+    <div class="header-content">
+
+        <div>
+            <h1 id="appTitle">
+                Health Copilot
+            </h1>
+
+            <p id="appDescription">
+                Your personal health assistant
+            </p>
+        </div>
+
+        <div class="header-actions">
+
+            <select
+                id="languageSelect"
+                onchange="changeLanguage()"
+            >
+                <option value="en">English</option>
+                <option value="te">తెలుగు</option>
+                <option value="hi">हिन्दी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="kn">ಕನ್ನಡ</option>
+            </select>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="home-container">
+
+    <section class="welcome-section">
+
+        <h2 id="welcomeTitle">
+            Welcome to Health Copilot
+        </h2>
+
+        <p id="welcomeDescription">
+            Choose a health service below to get started.
+        </p>
+
+    </section>
+
+
+    <section class="feature-grid">
+
+
+        <!-- Medical Copilot -->
+
+        <a
+            href="/copilot"
+            class="feature-card"
+        >
+
+            <div class="feature-icon">
+                🤖
+            </div>
+
+            <h2 id="copilotCardTitle">
+                Medical Copilot
+            </h2>
+
+            <p id="copilotCardDescription">
+                Ask health-related questions
+                and get health information.
+            </p>
+
+            <span
+                class="feature-card-button"
+                id="copilotCardButton"
+            >
+                Open Copilot →
+            </span>
+
+        </a>
+
+
+        <!-- Report Analyzer -->
+
+        <a
+            href="/report-analyzer"
+            class="feature-card"
+        >
+
+            <div class="feature-icon">
+                📄
+            </div>
+
+            <h2 id="reportCardTitle">
+                Report Analyzer
+            </h2>
+
+            <p id="reportCardDescription">
+                Upload a medical report or
+                prescription for analysis.
+            </p>
+
+            <span
+                class="feature-card-button"
+                id="reportCardButton"
+            >
+                Open Analyzer →
+            </span>
+
+        </a>
+
+
+        <!-- Medicine Analyzer -->
+
+        <a
+            href="/medicine-analyzer"
+            class="feature-card"
+        >
+
+            <div class="feature-icon">
+                💊
+            </div>
+
+            <h2 id="medicineCardTitle">
+                Medicine Analyzer
+            </h2>
+
+            <p id="medicineCardDescription">
+                Upload a medicine photo and
+                analyze medicine information.
+            </p>
+
+            <span
+                class="feature-card-button"
+                id="medicineCardButton"
+            >
+                Open Analyzer →
+            </span>
+
+        </a>
+
+
+        <!-- Medicine Reminder -->
+
+        <a
+            href="/medicine-reminder"
+            class="feature-card"
+        >
+
+            <div class="feature-icon">
+                ⏰
+            </div>
+
+            <h2 id="reminderCardTitle">
+                Medicine Reminder
+            </h2>
+
+            <p id="reminderCardDescription">
+                Set medicine schedules and
+                receive reminders.
+            </p>
+
+            <span
+                class="feature-card-button"
+                id="reminderCardButton"
+            >
+                Open Reminder →
+            </span>
+
+        </a>
+
+
+    </section>
+
+
+    <section class="home-disclaimer">
+
+        <h3>
+            ⚠️ Important
+        </h3>
+
+        <p id="homeDisclaimer">
+            Health Copilot provides general health
+            information and should not replace
+            professional medical advice, diagnosis,
+            or treatment.
+        </p>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        © 2026 Health Copilot
+    </p>
+
+</footer>
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const savedLanguage =
+            localStorage.getItem(
+                "healthCopilotLanguage"
+            ) || "en";
+
+
+        const languageSelect =
+            document.getElementById(
+                "languageSelect"
+            );
+
+
+        if (languageSelect) {
+
+            languageSelect.value =
+                savedLanguage;
+
+        }
+
+
+        if (
+            typeof changeLanguage ===
+            "function"
+        ) {
+
+            changeLanguage();
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>
+r
