@@ -1,0 +1,772 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eef6fb;
+    color: #183b56;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+header {
+    background: #1769aa;
+    color: white;
+    padding: 20px 40px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 30px;
+}
+
+header p {
+    margin: 6px 0 0;
+    font-size: 15px;
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* =====================================================
+   SELECT
+   ===================================================== */
+
+select {
+    padding: 10px 14px;
+
+    border: 1px solid #c8d8e5;
+
+    border-radius: 8px;
+
+    background: white;
+
+    color: #183b56;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.header-actions select {
+    min-width: 130px;
+}
+
+
+/* =====================================================
+   HOME
+   ===================================================== */
+
+.home-container {
+    width: 92%;
+    max-width: 1100px;
+
+    margin: 35px auto 50px;
+}
+
+
+/* =====================================================
+   WELCOME
+   ===================================================== */
+
+.welcome-section {
+    text-align: center;
+
+    margin-bottom: 30px;
+}
+
+.welcome-section h2 {
+    margin: 0 0 8px;
+
+    color: #1769aa;
+
+    font-size: 30px;
+}
+
+.welcome-section p {
+    margin: 0;
+
+    color: #607887;
+
+    font-size: 16px;
+}
+
+
+/* =====================================================
+   FEATURE GRID
+   ===================================================== */
+
+.feature-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 24px;
+}
+
+
+/* =====================================================
+   FEATURE CARD
+   ===================================================== */
+
+.feature-card {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+
+    background: white;
+
+    padding: 30px 25px;
+
+    min-height: 280px;
+
+    border-radius: 18px;
+
+    border: 1px solid #dce9f1;
+
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.08);
+
+    text-decoration: none;
+
+    color: #183b56;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+
+    border-color: #1769aa;
+
+    box-shadow:
+        0 10px 28px rgba(23, 105, 170, 0.18);
+}
+
+
+.feature-card:active {
+    transform: translateY(-2px);
+}
+
+
+/* =====================================================
+   CARD ICON
+   ===================================================== */
+
+.feature-icon {
+    width: 75px;
+
+    height: 75px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #e5f3fc;
+
+    font-size: 38px;
+
+    margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   CARD TEXT
+   ===================================================== */
+
+.feature-card h2 {
+    margin: 0 0 12px;
+
+    color: #1769aa;
+
+    font-size: 23px;
+}
+
+.feature-card p {
+    margin: 0;
+
+    color: #607887;
+
+    font-size: 15px;
+
+    line-height: 1.6;
+
+    max-width: 380px;
+
+    min-height: 50px;
+}
+
+
+/* =====================================================
+   CARD BUTTON
+   ===================================================== */
+
+.feature-card-button {
+    display: inline-block;
+
+    margin-top: auto;
+
+    padding: 11px 20px;
+
+    border-radius: 8px;
+
+    background: #1769aa;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: bold;
+}
+
+.feature-card:hover .feature-card-button {
+    background: #12588e;
+}
+
+
+/* =====================================================
+   DISCLAIMER
+   ===================================================== */
+
+.home-disclaimer {
+    margin-top: 30px;
+
+    background: #fff8e6;
+
+    border-left: 5px solid #e0a800;
+
+    padding: 18px 20px;
+
+    border-radius: 10px;
+}
+
+.home-disclaimer h3 {
+    margin: 0 0 8px;
+
+    color: #7a5a00;
+}
+
+.home-disclaimer p {
+    margin: 0;
+
+    color: #695b35;
+
+    line-height: 1.6;
+}
+
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+footer {
+    text-align: center;
+
+    padding: 20px;
+
+    background: #143f5b;
+
+    color: white;
+
+    font-size: 14px;
+}
+
+footer p {
+    margin: 0;
+}
+
+
+/* =====================================================
+   GENERAL CONTAINER
+   ===================================================== */
+
+.container {
+    width: 92%;
+
+    max-width: 850px;
+
+    margin: 30px auto;
+}
+
+
+/* =====================================================
+   CARD
+   ===================================================== */
+
+.card {
+    background: white;
+
+    padding: 25px;
+
+    margin-bottom: 22px;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+    margin-top: 0;
+
+    color: #1769aa;
+}
+
+
+/* =====================================================
+   PAGE TITLE
+   ===================================================== */
+
+.page-title {
+    text-align: center;
+
+    margin-bottom: 25px;
+}
+
+.page-title h2 {
+    margin: 0 0 8px;
+
+    color: #1769aa;
+}
+
+.page-title p {
+    color: #607887;
+}
+
+
+/* =====================================================
+   FORM
+   ===================================================== */
+
+textarea {
+    width: 100%;
+
+    padding: 13px;
+
+    border: 1px solid #c8d8e5;
+
+    border-radius: 9px;
+
+    resize: vertical;
+
+    font-size: 15px;
+
+    font-family: Arial, sans-serif;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+    outline: none;
+
+    border-color: #1769aa;
+
+    box-shadow:
+        0 0 0 2px rgba(23, 105, 170, 0.1);
+}
+
+
+input[type="file"] {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #c8d8e5;
+
+    border-radius: 8px;
+
+    background: #f8fbfd;
+
+    margin-bottom: 12px;
+}
+
+
+input[type="text"],
+input[type="time"] {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #c8d8e5;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+}
+
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+button {
+    background: #1769aa;
+
+    color: white;
+
+    border: none;
+
+    padding: 11px 18px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    margin-top: 8px;
+}
+
+button:hover {
+    background: #12588e;
+}
+
+button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+.buttons {
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+
+/* =====================================================
+   HOME BUTTON
+   ===================================================== */
+
+.home-button {
+    margin-top: 0;
+
+    background: white;
+
+    color: #1769aa;
+
+    border: 1px solid white;
+}
+
+.home-button:hover {
+    background: #eaf5fc;
+}
+
+
+/* =====================================================
+   RESULTS
+   ===================================================== */
+
+.result {
+    margin-top: 18px;
+
+    padding: 16px;
+
+    background: #f5faff;
+
+    border-left: 4px solid #1769aa;
+
+    border-radius: 8px;
+
+    line-height: 1.6;
+}
+
+.result h3 {
+    color: #1769aa;
+
+    margin-top: 0;
+}
+
+.result h4 {
+    margin-bottom: 5px;
+
+    color: #245b78;
+}
+
+
+/* =====================================================
+   TAG
+   ===================================================== */
+
+.tag {
+    display: inline-block;
+
+    background: #dceffb;
+
+    color: #14567d;
+
+    padding: 5px 9px;
+
+    border-radius: 15px;
+
+    margin: 3px;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   DISCLAIMER
+   ===================================================== */
+
+.disclaimer {
+    background: #fff8e6;
+
+    border-left: 4px solid #e0a800;
+
+    padding: 15px;
+
+    border-radius: 8px;
+
+    margin-bottom: 30px;
+}
+
+
+/* =====================================================
+   DETAILS
+   ===================================================== */
+
+details {
+    margin-top: 15px;
+}
+
+summary {
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   MEDICINE REMINDER
+   ===================================================== */
+
+.section-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+.section-header h2 {
+    margin-bottom: 5px;
+}
+
+
+.section-header p {
+    margin-top: 0;
+
+    color: #607887;
+}
+
+
+.card label {
+    display: block;
+
+    margin-top: 15px;
+
+    margin-bottom: 6px;
+
+    font-weight: bold;
+}
+
+
+.medicine-reminder-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 17px;
+
+    margin-top: 14px;
+
+    background: #f7fbfe;
+
+    border: 1px solid #d8e7f0;
+
+    border-radius: 12px;
+}
+
+
+.medicine-reminder-icon {
+    font-size: 35px;
+
+    min-width: 50px;
+
+    text-align: center;
+}
+
+
+.medicine-reminder-details {
+    flex: 1;
+}
+
+
+.medicine-reminder-details h3 {
+    margin: 0 0 7px;
+
+    color: #1769aa;
+}
+
+
+.medicine-reminder-details p {
+    margin: 4px 0;
+
+    color: #526b79;
+}
+
+
+.medicine-reminder-actions {
+    display: flex;
+
+    gap: 7px;
+
+    flex-wrap: wrap;
+}
+
+
+.medicine-reminder-actions button {
+    margin-top: 0;
+}
+
+
+.delete-button {
+    background: #c0392b;
+}
+
+.delete-button:hover {
+    background: #a93226;
+}
+
+
+.empty-reminders {
+    text-align: center;
+
+    padding: 30px;
+
+    color: #708795;
+
+    background: #f7fbfe;
+
+    border-radius: 10px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 750px) {
+
+    header {
+        padding: 18px;
+    }
+
+    .header-content {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions select {
+        width: 100%;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .home-container {
+        width: 94%;
+
+        margin-top: 25px;
+    }
+
+    .welcome-section h2 {
+        font-size: 25px;
+    }
+
+    .feature-card {
+        min-height: 260px;
+
+        padding: 25px 18px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    .medicine-reminder-item {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .medicine-reminder-actions {
+        width: 100%;
+    }
+
+}
