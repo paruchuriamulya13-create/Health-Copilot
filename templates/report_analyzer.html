@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Report Analyzer</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <div>
+
+        <h1>
+            📄 Report Analyzer
+        </h1>
+
+        <p>
+            Medical Report Analysis
+        </p>
+
+    </div>
+
+</header>
+
+
+<main class="page-container">
+
+
+    <a
+        href="{{ url_for('home') }}"
+        class="back-button">
+
+        ← Back to Home
+
+    </a>
+
+
+    <section class="card">
+
+        <h2>
+            📄 Medical Report Analyzer
+        </h2>
+
+        <p>
+            Upload a PDF, TXT, PNG, JPG or WEBP
+            medical report.
+        </p>
+
+
+        <input
+            type="file"
+            id="file"
+            accept=".pdf,.txt,.png,.jpg,.jpeg,.webp">
+
+
+        <button
+            id="uploadButton"
+            onclick="uploadDocument()">
+
+            📄 Upload & Analyze
+
+        </button>
+
+
+        <div
+            id="documentResult"
+            class="result">
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>
