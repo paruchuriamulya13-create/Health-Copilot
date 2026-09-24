@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Medical Copilot</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <div>
+
+        <h1>
+            🤖 Medical Copilot
+        </h1>
+
+        <p>
+            NLP-Based Healthcare Assistant
+        </p>
+
+    </div>
+
+</header>
+
+
+<main class="page-container">
+
+
+    <a
+        href="{{ url_for('home') }}"
+        class="back-button">
+
+        ← Back to Home
+
+    </a>
+
+
+    <section class="card">
+
+        <h2>
+            🤖 Medical Copilot
+        </h2>
+
+        <p>
+            Ask your health-related questions
+            using text or voice.
+        </p>
+
+
+        <textarea
+            id="question"
+            rows="6"
+            placeholder="Type your health question here...">
+        </textarea>
+
+
+        <div class="buttons">
+
+            <button
+                id="askButton"
+                onclick="askCopilot()">
+
+                Ask Copilot
+
+            </button>
+
+
+            <button
+                id="voiceButton"
+                onclick="startVoice()">
+
+                🎤 Voice
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="copilotResult"
+            class="result">
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>
