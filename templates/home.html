@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Health Copilot</title>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div>
+
+        <h1>
+            🩺
+            <span id="appTitle">
+                Health Copilot
+            </span>
+        </h1>
+
+        <p id="appDescription">
+            NLP-Based Healthcare Assistant
+        </p>
+
+    </div>
+
+
+    <div class="header-actions">
+
+        <select
+            id="language"
+            onchange="changeLanguage()"
+        >
+
+            <option value="en">
+                English
+            </option>
+
+            <option value="te">
+                తెలుగు
+            </option>
+
+            <option value="hi">
+                हिन्दी
+            </option>
+
+            <option value="ta">
+                தமிழ்
+            </option>
+
+            <option value="kn">
+                ಕನ್ನಡ
+            </option>
+
+        </select>
+
+
+        <a
+            class="top-link"
+            href="/chatbot"
+        >
+            🤖 Chatbot
+        </a>
+
+
+        <a
+            class="top-link"
+            href="/logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+<section class="welcome">
+
+    <h2>
+        Welcome to Health Copilot 👋
+    </h2>
+
+    <p>
+        Analyze medical reports, medicines,
+        X-rays and use the NLP health assistant.
+    </p>
+
+</section>
+
+
+<section class="feature-grid">
+
+
+<a
+    class="feature-card"
+    href="/chatbot"
+>
+
+    <span>
+        🤖
+    </span>
+
+    <b>
+        Medical Chatbot
+    </b>
+
+    <small>
+        Text and voice questions
+    </small>
+
+</a>
+
+
+<label class="feature-card">
+
+    <span>
+        📄
+    </span>
+
+    <b>
+        Report Analyzer
+    </b>
+
+    <small>
+        PDF / image reports
+    </small>
+
+    <input
+        type="file"
+        id="file"
+        accept=".pdf,.txt,.png,.jpg,.jpeg,.webp"
+        onchange="uploadDocument()"
+    >
+
+</label>
+
+
+<label class="feature-card">
+
+    <span>
+        💊
+    </span>
+
+    <b>
+        Medicine Analyzer
+    </b>
+
+    <small>
+        Scan medicine package
+    </small>
+
+    <input
+        type="file"
+        id="medicineFile"
+        accept="image/*"
+        onchange="analyzeMedicine()"
+    >
+
+</label>
+
+
+<label class="feature-card">
+
+    <span>
+        🦴
+    </span>
+
+    <b>
+        X-Ray Analyzer
+    </b>
+
+    <small>
+        Upload or use camera
+    </small>
+
+    <input
+        type="file"
+        id="xrayFile"
+        accept="image/*"
+        capture="environment"
+        onchange="analyzeXray()"
+    >
+
+</label>
+
+
+</section>
+
+
+<section class="card">
+
+    <h2>
+        📄 Report / Prescription Analysis
+    </h2>
+
+    <div
+        id="documentResult"
+        class="result"
+    >
+        Choose a report above to analyze it.
+    </div>
+
+</section>
+
+
+<section class="card">
+
+    <h2>
+        💊 Medicine Reminders
+    </h2>
+
+
+    <div class="form-row">
+
+        <input
+            id="remMedicine"
+            placeholder="Medicine name"
+        >
+
+        <input
+            id="remTime"
+            type="datetime-local"
+        >
+
+        <button
+            onclick="addReminder()"
+        >
+            Add Reminder
+        </button>
+
+    </div>
+
+
+    <div id="reminderList"></div>
+
+</section>
+
+
+<section class="disclaimer">
+
+    <strong>
+        ⚠️ Important:
+    </strong>
+
+    This application provides
+    educational and AI-assisted information
+    and does not replace a doctor.
+
+    Image and X-ray analysis are not
+    medical diagnoses.
+
+</section>
+
+
+</main>
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+></script>
+
+</body>
+
+</html>
