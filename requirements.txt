@@ -1,0 +1,8 @@
+Flask
+mysql-connector-python
+nltk
+Pillow
+pytesseract
+PyPDF2
+ollama
+gunicorn
