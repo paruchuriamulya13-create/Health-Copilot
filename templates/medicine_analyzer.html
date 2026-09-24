@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Medicine Analyzer</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Browser OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+</head>
+
+<body>
+
+<header>
+
+    <div>
+
+        <h1>
+            💊 Medicine Analyzer
+        </h1>
+
+        <p>
+            Medicine Photo Analysis
+        </p>
+
+    </div>
+
+</header>
+
+
+<main class="page-container">
+
+    <a
+        href="{{ url_for('home') }}"
+        class="back-button">
+
+        ← Back to Home
+
+    </a>
+
+
+    <section class="card">
+
+        <h2>
+            💊 Medicine Photo Analyzer
+        </h2>
+
+        <p>
+            Upload a clear medicine strip,
+            box or tablet package photo.
+        </p>
+
+
+        <input
+            type="file"
+            id="medicineFile"
+            accept="image/*">
+
+
+        <button
+            type="button"
+            id="medicineButton"
+            onclick="analyzeMedicine()">
+
+            🔍 Read Medicine
+
+        </button>
+
+
+        <!-- Image Preview -->
+        <div id="imagePreviewContainer"
+             style="display:none; margin-top:20px;">
+
+            <h3>📷 Image Preview</h3>
+
+            <img
+                id="imagePreview"
+                style="
+                    max-width:100%;
+                    max-height:300px;
+                    border-radius:10px;
+                    margin-top:10px;
+                ">
+
+        </div>
+
+
+        <!-- OCR Progress -->
+        <div
+            id="ocrProgress"
+            style="
+                display:none;
+                margin-top:20px;
+            ">
+
+            <p id="ocrStatus">
+                🔄 Reading medicine image...
+            </p>
+
+            <progress
+                id="ocrProgressBar"
+                value="0"
+                max="100"
+                style="width:100%;">
+            </progress>
+
+        </div>
+
+
+        <!-- Result -->
+        <div
+            id="medicineResult"
+            class="result">
+        </div>
+
+    </section>
+
+</main>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+
+<script>
+
+async function analyzeMedicine() {
+
+    const fileInput = document.getElementById("medicineFile");
+    const button = document.getElementById("medicineButton");
+    const result = document.getElementById("medicineResult");
+
+    const progressContainer =
+        document.getElementById("ocrProgress");
+
+    const progressBar =
+        document.getElementById("ocrProgressBar");
+
+    const status =
+        document.getElementById("ocrStatus");
+
+    const previewContainer =
+        document.getElementById("imagePreviewContainer");
+
+    const preview =
+        document.getElementById("imagePreview");
+
+
+    // Check image
+    if (!fileInput.files || fileInput.files.length === 0) {
+
+        result.innerHTML =
+            "<p>Please select a medicine image first.</p>";
+
+        return;
+    }
+
+
+    const file = fileInput.files[0];
+
+
+    // Image preview
+    preview.src = URL.createObjectURL(file);
+    previewContainer.style.display = "block";
+
+
+    // UI
+    button.disabled = true;
+    button.innerText = "🔄 Reading...";
+
+    result.innerHTML = "";
+
+    progressContainer.style.display = "block";
+
+    progressBar.value = 0;
+
+    status.innerText =
+        "🔄 Reading medicine image...";
+
+
+    try {
+
+        /*
+         * Browser OCR
+         * No Python Tesseract installation required.
+         */
+
+        const worker = await Tesseract.createWorker(
+            "eng",
+            1,
+            {
+                logger: function(info) {
+
+                    if (info.status) {
+
+                        status.innerText =
+                            "🔄 " + info.status;
+
+                    }
+
+                    if (info.progress) {
+
+                        progressBar.value =
+                            Math.round(info.progress * 100);
+
+                    }
+
+                }
+            }
+        );
+
+
+        const { data } =
+            await worker.recognize(file);
+
+
+        await worker.terminate();
+
+
+        const detectedText =
+            data.text.trim();
+
+
+        progressBar.value = 100;
+
+
+        if (!detectedText) {
+
+            result.innerHTML = `
+                <div>
+                    <h3>❌ Medicine name not detected</h3>
+
+                    <p>
+                        Please upload a clearer image showing
+                        the medicine name or package label.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+
+        status.innerText =
+            "✅ Image reading completed";
+
+
+        /*
+         * Send OCR text to Flask
+         */
+
+        const response = await fetch(
+            "/analyze_medicine_text",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    text: detectedText
+                })
+            }
+        );
+
+
+        const dataFromServer =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                dataFromServer.error ||
+                "Server error"
+            );
+
+        }
+
+
+        /*
+         * Display result
+         */
+
+        let html = "";
+
+
+        if (dataFromServer.medicines &&
+            dataFromServer.medicines.length > 0) {
+
+            html += `
+                <h3>💊 Detected Medicine</h3>
+
+                <ul>
+            `;
+
+            dataFromServer.medicines.forEach(
+                function(medicine) {
+
+                    html += `
+                        <li>
+                            <strong>
+                                ${medicine}
+                            </strong>
+                        </li>
+                    `;
+
+                }
+            );
+
+            html += `</ul>`;
+
+        } else {
+
+            html += `
+                <h3>
+                    ⚠️ Medicine name not confidently detected
+                </h3>
+            `;
+
+        }
+
+
+        html += `
+            <h3>📝 Detected Text</h3>
+
+            <pre style="
+                white-space:pre-wrap;
+                text-align:left;
+            ">${escapeHtml(detectedText)}</pre>
+        `;
+
+
+        if (dataFromServer.answer) {
+
+            html += `
+                <h3>ℹ️ Information</h3>
+
+                <div style="
+                    white-space:pre-wrap;
+                    text-align:left;
+                ">
+                    ${escapeHtml(dataFromServer.answer)}
+                </div>
+            `;
+
+        }
+
+
+        result.innerHTML = html;
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        result.innerHTML = `
+            <h3>❌ OCR Error</h3>
+
+            <p>
+                ${escapeHtml(error.message)}
+            </p>
+
+            <p>
+                Please try a clearer medicine image.
+            </p>
+        `;
+
+    } finally {
+
+        button.disabled = false;
+
+        button.innerText =
+            "🔍 Read Medicine";
+
+        progressContainer.style.display =
+            "none";
+
+    }
+
+}
+
+
+/*
+ * Prevent OCR text from being interpreted as HTML.
+ */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+</script>
+
+</body>
+
+</html>
