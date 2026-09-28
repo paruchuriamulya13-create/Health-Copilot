@@ -1,74 +1,85 @@
-from flask import (
-    Flask,
-    render_template,
-    request,
-    jsonify,
-    redirect,
-    url_for,
-    session
-)
-
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
-import json
 import nltk
 import re
 import math
 import os
-
-from PIL import (
-    Image,
-    ImageEnhance,
-    ImageFilter,
-    ImageOps
-)
-
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 import pytesseract
-
 from collections import Counter
-
 from nltk.corpus import stopwords
-
 from nltk.stem import PorterStemmer
-
 from PyPDF2 import PdfReader
 
-from functools import wraps
-
-from werkzeug.security import (
-    generate_password_hash,
-    check_password_hash
-)# ============================================================
+# ============================================================
 # OLLAMA / LOCAL AI
 # ============================================================
 
 try:
-    from ollama import chat
+    from ollama import Client
+
     OLLAMA_AVAILABLE = True
+
+    # Local default for development.
+    # In Railway, set OLLAMA_HOST to the private URL of the Ollama service.
+    OLLAMA_HOST = os.getenv(
+        "OLLAMA_HOST",
+        "http://127.0.0.1:11434"
+    )
+
+    OLLAMA_MODEL = os.getenv(
+        "OLLAMA_MODEL",
+        "gemma3:1b"
+    )
+
+    ollama_client = Client(
+        host=OLLAMA_HOST
+    )
+
 except ImportError:
-    chat = None
+    Client = None
+    ollama_client = None
     OLLAMA_AVAILABLE = False
-
-
-OLLAMA_MODEL = "gemma3:1b"
+    OLLAMA_HOST = os.getenv(
+        "OLLAMA_HOST",
+        "http://127.0.0.1:11434"
+    )
+    OLLAMA_MODEL = os.getenv(
+        "OLLAMA_MODEL",
+        "gemma3:1b"
+    )
 
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "health-copilot-secret-key-2026"
-
-app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 # ============================================================
 # DATABASE
 # ============================================================
 
 DB_CONFIG = {
-    "host": "localhost",
-    "port": 3307,
-    "user": "root",
-    "password": "amulya",
-    "database": "health_copilot"
+    "host": os.getenv(
+        "MYSQLHOST",
+        "localhost"
+    ),
+    "port": int(
+        os.getenv(
+            "MYSQLPORT",
+            "3307"
+        )
+    ),
+    "user": os.getenv(
+        "MYSQLUSER",
+        "root"
+    ),
+    "password": os.getenv(
+        "MYSQLPASSWORD",
+        ""
+    ),
+    "database": os.getenv(
+        "MYSQLDATABASE",
+        "health_copilot"
+    )
 }
 
 
@@ -421,6 +432,211 @@ MEDICAL_ENTITIES = [
     "t3",
     "t4"
 ]
+
+
+# ============================================================
+# MEDICINE INFORMATION DATABASE
+# ============================================================
+
+MEDICINE_INFO = {
+    "paracetamol": {
+        "uses": "Used for fever and mild-to-moderate pain.",
+        "side_effects": "Nausea, stomach discomfort, or skin rash.",
+        "precautions": "Do not exceed the recommended amount. People with liver problems should consult a doctor."
+    },
+    "acetaminophen": {
+        "uses": "Used for fever and mild-to-moderate pain.",
+        "side_effects": "Nausea, stomach discomfort, or skin rash.",
+        "precautions": "Avoid excessive use. People with liver problems should consult a doctor."
+    },
+    "dolo": {
+        "uses": "A paracetamol-based medicine commonly used for fever and pain.",
+        "side_effects": "Nausea, stomach discomfort, or skin rash.",
+        "precautions": "Check the package strength and avoid taking multiple paracetamol-containing products together without medical advice."
+    },
+    "dolo 500": {
+        "uses": "Used for fever and mild-to-moderate pain.",
+        "side_effects": "Nausea, stomach discomfort, or skin rash.",
+        "precautions": "Verify the strength on the package and do not exceed the recommended amount."
+    },
+    "dolo 650": {
+        "uses": "Used for fever and mild-to-moderate pain.",
+        "side_effects": "Nausea, stomach discomfort, or skin rash.",
+        "precautions": "Verify the strength on the package. People with liver problems should consult a doctor."
+    },
+    "p 500": {
+        "uses": "Used for fever and mild-to-moderate pain when the product contains paracetamol.",
+        "side_effects": "Nausea, stomach discomfort, or skin rash.",
+        "precautions": "Verify the active ingredient and strength on the package before use."
+    },
+    "p 650": {
+        "uses": "Used for fever and mild-to-moderate pain when the product contains paracetamol.",
+        "side_effects": "Nausea, stomach discomfort, or skin rash.",
+        "precautions": "Verify the active ingredient and strength on the package before use."
+    },
+    "ibuprofen": {
+        "uses": "Used for pain, fever, and inflammation.",
+        "side_effects": "Stomach irritation, nausea, indigestion, or dizziness.",
+        "precautions": "Use cautiously in people with stomach ulcers, kidney problems, or certain heart conditions."
+    },
+    "cetirizine": {
+        "uses": "Used to relieve allergy symptoms such as sneezing, runny nose, itching, and watery eyes.",
+        "side_effects": "Drowsiness, tiredness, or dry mouth.",
+        "precautions": "May cause drowsiness. Avoid activities requiring alertness if affected."
+    },
+    "levocetirizine": {
+        "uses": "Used for allergy symptoms such as sneezing, runny nose, and itching.",
+        "side_effects": "Drowsiness, fatigue, or dry mouth.",
+        "precautions": "May cause sleepiness in some people."
+    },
+    "omeprazole": {
+        "uses": "Used for acidity, heartburn, acid reflux, and excess stomach acid.",
+        "side_effects": "Headache, nausea, abdominal discomfort, or diarrhea.",
+        "precautions": "Consult a doctor if symptoms continue or frequently return."
+    },
+    "pantoprazole": {
+        "uses": "Used for acid reflux, heartburn, and excess stomach acid.",
+        "side_effects": "Headache, nausea, diarrhea, or stomach discomfort.",
+        "precautions": "Long-term use should be monitored by a healthcare professional."
+    },
+    "amoxicillin": {
+        "uses": "Used to treat certain bacterial infections.",
+        "side_effects": "Nausea, diarrhea, stomach discomfort, or skin rash.",
+        "precautions": "People with penicillin allergy should inform their doctor."
+    },
+    "azithromycin": {
+        "uses": "Used to treat certain bacterial infections.",
+        "side_effects": "Nausea, diarrhea, stomach pain, or headache.",
+        "precautions": "Should be used only when prescribed for an appropriate bacterial infection."
+    },
+    "metformin": {
+        "uses": "Used to help control blood sugar in people with type 2 diabetes.",
+        "side_effects": "Nausea, diarrhea, stomach upset, or reduced appetite.",
+        "precautions": "People with kidney problems should use it under medical supervision."
+    },
+    "amlodipine": {
+        "uses": "Used to treat high blood pressure and some heart-related conditions.",
+        "side_effects": "Ankle swelling, dizziness, headache, or flushing.",
+        "precautions": "Blood pressure should be monitored as advised by a healthcare professional."
+    },
+    "atorvastatin": {
+        "uses": "Used to lower cholesterol and reduce cardiovascular risk.",
+        "side_effects": "Muscle pain, headache, nausea, or digestive problems.",
+        "precautions": "Report unexplained or severe muscle pain to a doctor."
+    },
+    "diclofenac": {
+        "uses": "Used to relieve pain and inflammation.",
+        "side_effects": "Stomach irritation, nausea, indigestion, or dizziness.",
+        "precautions": "Use cautiously in people with stomach ulcers, kidney disease, or certain heart conditions."
+    },
+    "domperidone": {
+        "uses": "Used for nausea and vomiting in certain situations.",
+        "side_effects": "Dry mouth, headache, abdominal discomfort, or diarrhea.",
+        "precautions": "Use only according to medical advice, particularly in people with heart conditions."
+    },
+    "losartan": {
+        "uses": "Used to treat high blood pressure and certain heart or kidney conditions.",
+        "side_effects": "Dizziness, headache, or tiredness.",
+        "precautions": "Blood pressure and kidney function may need monitoring."
+    },
+    "montelukast": {
+        "uses": "Used to help control asthma and certain allergy symptoms.",
+        "side_effects": "Headache, stomach discomfort, or tiredness.",
+        "precautions": "Discuss unusual mood or behavior changes with a healthcare professional."
+    },
+    "aspirin": {
+        "uses": "Used for pain and fever in some situations and, under medical supervision, for certain cardiovascular conditions.",
+        "side_effects": "Stomach irritation, nausea, or increased risk of bleeding.",
+        "precautions": "People with bleeding problems or stomach ulcers should consult a doctor before use."
+    },
+    "vitamin d3": {
+        "uses": "Used to prevent or treat vitamin D deficiency.",
+        "side_effects": "Usually well tolerated when used appropriately. Excessive intake can cause high calcium levels.",
+        "precautions": "Use according to medical advice, especially for long-term supplementation."
+    },
+    "folic acid": {
+        "uses": "Used to prevent or treat folate deficiency and support red blood cell production.",
+        "side_effects": "Usually well tolerated. Nausea or bloating may occasionally occur.",
+        "precautions": "Use the recommended amount and inform a healthcare professional about other supplements."
+    },
+    "calcium": {
+        "uses": "Used as a calcium supplement when dietary intake is insufficient.",
+        "side_effects": "Constipation, bloating, or stomach discomfort.",
+        "precautions": "Excessive intake may cause health problems. Follow medical advice."
+    },
+    "antacid": {
+        "uses": "Used to relieve occasional heartburn, acidity, and indigestion.",
+        "side_effects": "Constipation, diarrhea, or stomach discomfort depending on the ingredients.",
+        "precautions": "Check the ingredients and consult a healthcare professional if symptoms persist."
+    }
+}
+
+
+def normalize_medicine_name(name):
+    name = name.lower().strip()
+    name = re.sub(r"[^a-z0-9\\s]", " ", name)
+    name = re.sub(r"\\s+", " ", name).strip()
+
+    replacements = {
+        "paracetarnol": "paracetamol",
+        "paracetmol": "paracetamol",
+        "paracetemol": "paracetamol",
+        "paracitamol": "paracetamol",
+        "p650": "p 650",
+        "p500": "p 500",
+        "p 650mg": "p 650",
+        "p 500mg": "p 500",
+        "pantaprazole": "pantoprazole",
+        "pantoprazol": "pantoprazole",
+        "omeprazol": "omeprazole",
+        "amoxycillin": "amoxicillin",
+        "amoxicillln": "amoxicillin",
+        "azithromycine": "azithromycin",
+        "metformine": "metformin",
+        "amlodipin": "amlodipine"
+    }
+    return replacements.get(name, name)
+
+
+def get_medicine_information(medicine_name):
+    normalized = normalize_medicine_name(medicine_name)
+
+    if normalized in MEDICINE_INFO:
+        return normalized, MEDICINE_INFO[normalized]
+
+    for medicine, info in MEDICINE_INFO.items():
+        if medicine in normalized or normalized in medicine:
+            return medicine, info
+
+    return normalized, None
+
+
+def build_medicine_answer(medicine_name):
+    detected_name, info = get_medicine_information(medicine_name)
+
+    if not info:
+        return (
+            f"💊 Medicine detected: {medicine_name}\n\n"
+            "⚠️ Detailed information for this medicine is not "
+            "currently available in the local medicine database.\n\n"
+            "Please verify the medicine name and strength on the "
+            "original package and consult a pharmacist or doctor."
+        )
+
+    return (
+        f"💊 Medicine: {detected_name.title()}\n\n"
+        f"🔹 Common Uses:\n{info['uses']}\n\n"
+        f"🔹 Common Side Effects:\n{info['side_effects']}\n\n"
+        f"🔹 Important Precautions:\n{info['precautions']}\n\n"
+        "🚨 When to Contact a Doctor:\n"
+        "Seek medical advice if you experience severe, unusual, "
+        "or persistent symptoms.\n\n"
+        "⚠️ Important:\n"
+        "Verify the medicine name and strength on the original "
+        "package or prescription before taking it. This information "
+        "is for general educational purposes and does not replace "
+        "professional medical advice."
+    )
 
 
 # ============================================================
@@ -1235,7 +1451,7 @@ general medical knowledge when appropriate.
 """
 
 
-        response = chat(
+        response = ollama_client.chat(
             model=OLLAMA_MODEL,
             messages=[
                 {
@@ -1794,450 +2010,11 @@ def extract_image_text(file):
 
         return ""
        
-
-# ============================================================
-# FILE-BASED LOGIN / AUTHENTICATION
-# ============================================================
-
-USERS_FILE = os.path.join(
-    os.path.dirname(
-        os.path.abspath(__file__)
-    ),
-    "users.json"
-)
-
-PROTECTED_API_ROUTES = {
-    "/ask",
-    "/upload",
-    "/analyze_medicine",
-    "/analyze_medicine_text",
-    "/history"
-}
-
-
-def load_users():
-
-    if not os.path.exists(
-        USERS_FILE
-    ):
-        return {}
-
-    try:
-
-        with open(
-            USERS_FILE,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
-            data = json.load(
-                file
-            )
-
-        if isinstance(
-            data,
-            dict
-        ):
-            return data
-
-        return {}
-
-    except Exception as error:
-
-        print(
-            "Users file read error:",
-            error
-        )
-
-        return {}
-
-
-def save_users(
-    users
-):
-
-    temp_file = (
-        USERS_FILE
-        + ".tmp"
-    )
-
-    with open(
-        temp_file,
-        "w",
-        encoding="utf-8"
-    ) as file:
-
-        json.dump(
-            users,
-            file,
-            indent=4,
-            ensure_ascii=False
-        )
-
-    os.replace(
-        temp_file,
-        USERS_FILE
-    )
-
-
-def normalize_login_id(
-    value
-):
-
-    value = value.strip()
-
-    if "@" in value:
-
-        return value.lower()
-
-    return re.sub(
-        r"[\s\-\(\)]",
-        "",
-        value
-    )
-
-
-def validate_login_id(
-    value
-):
-
-    normalized = normalize_login_id(
-        value
-    )
-
-    email_pattern = re.compile(
-        r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
-    )
-
-    mobile_pattern = re.compile(
-        r"^\+?[0-9]{10,15}$"
-    )
-
-    if email_pattern.fullmatch(
-        normalized
-    ):
-
-        return (
-            True,
-            normalized,
-            "email"
-        )
-
-    if mobile_pattern.fullmatch(
-        normalized
-    ):
-
-        return (
-            True,
-            normalized,
-            "mobile"
-        )
-
-    return (
-        False,
-        normalized,
-        None
-    )
-
-
-def login_required(
-    view_function
-):
-
-    @wraps(
-        view_function
-    )
-    def wrapped(
-        *args,
-        **kwargs
-    ):
-
-        if "user_id" not in session:
-
-            if request.path in PROTECTED_API_ROUTES:
-
-                return jsonify({
-                    "success": False,
-                    "error": "Please login to continue.",
-                    "login_required": True
-                }), 401
-
-            return redirect(
-                url_for(
-                    "login",
-                    next=request.path
-                )
-            )
-
-        return view_function(
-            *args,
-            **kwargs
-        )
-
-    return wrapped
-
-
-# ============================================================
-# LOGIN / REGISTER / LOGOUT
-# ============================================================
-
-@app.route(
-    "/login",
-    methods=["GET", "POST"]
-)
-def login():
-
-    if request.method == "GET":
-
-        if "user_id" in session:
-
-            return redirect(
-                url_for(
-                    "home"
-                )
-            )
-
-        return render_template(
-            "login.html"
-        )
-
-    login_id = request.form.get(
-        "login_id",
-        ""
-    ).strip()
-
-    password = request.form.get(
-        "password",
-        ""
-    )
-
-    next_url = request.form.get(
-        "next",
-        ""
-    ).strip()
-
-    valid, normalized_id, login_type = (
-        validate_login_id(
-            login_id
-        )
-    )
-
-    if not valid:
-
-        return render_template(
-            "login.html",
-            error=(
-                "Please enter a valid email address "
-                "or mobile number."
-            ),
-            next=next_url
-        )
-
-    if not password:
-
-        return render_template(
-            "login.html",
-            error="Please enter your password.",
-            next=next_url
-        )
-
-    users = load_users()
-
-    user = users.get(
-        normalized_id
-    )
-
-    if not user:
-
-        return render_template(
-            "login.html",
-            error=(
-                "Account not found. "
-                "Please create an account first."
-            ),
-            next=next_url
-        )
-
-    password_hash = user.get(
-        "password_hash",
-        ""
-    )
-
-    if not password_hash:
-
-        return render_template(
-            "login.html",
-            error="Account password is not configured. Please register again.",
-            next=next_url
-        )
-
-    try:
-
-        password_ok = check_password_hash(
-            password_hash,
-            password
-        )
-
-    except Exception:
-
-        password_ok = False
-
-    if not password_ok:
-
-        return render_template(
-            "login.html",
-            error=(
-                "Incorrect password. "
-                "Please try again."
-            ),
-            next=next_url
-        )
-
-    session.clear()
-
-    session["user_id"] = normalized_id
-    session["login_id"] = normalized_id
-    session["login_type"] = user.get(
-        "login_type",
-        login_type
-    )
-
-    if next_url.startswith(
-        "/"
-    ):
-
-        return redirect(
-            next_url
-        )
-
-    return redirect(
-        url_for(
-            "home"
-        )
-    )
-
-
-@app.route(
-    "/register",
-    methods=["GET", "POST"]
-)
-def register():
-
-    if request.method == "GET":
-
-        if "user_id" in session:
-
-            return redirect(
-                url_for(
-                    "home"
-                )
-            )
-
-        return render_template(
-            "register.html"
-        )
-
-    login_id = request.form.get(
-        "login_id",
-        ""
-    ).strip()
-
-    password = request.form.get(
-        "password",
-        ""
-    )
-
-    confirm_password = request.form.get(
-        "confirm_password",
-        ""
-    )
-
-    valid, normalized_id, login_type = (
-        validate_login_id(
-            login_id
-        )
-    )
-
-    if not valid:
-
-        return render_template(
-            "register.html",
-            error=(
-                "Please enter a valid email address "
-                "or mobile number."
-            )
-        )
-
-    if len(
-        password
-    ) < 6:
-
-        return render_template(
-            "register.html",
-            error=(
-                "Password must be at least 6 characters."
-            )
-        )
-
-    if password != confirm_password:
-
-        return render_template(
-            "register.html",
-            error="Passwords do not match."
-        )
-
-    users = load_users()
-
-    if normalized_id in users:
-
-        return render_template(
-            "register.html",
-            error=(
-                "This email/mobile number is "
-                "already registered."
-            )
-        )
-
-    users[normalized_id] = {
-        "login_id": normalized_id,
-        "login_type": login_type,
-        "password_hash": generate_password_hash(
-            password
-        )
-    }
-
-    save_users(
-        users
-    )
-
-    return redirect(
-        url_for(
-            "login",
-            registered="1"
-        )
-    )
-
-
-@app.route(
-    "/logout"
-)
-def logout():
-
-    session.clear()
-
-    return redirect(
-        url_for(
-            "login"
-        )
-    )
-
-
 # ============================================================
 # HOME + SEPARATE PAGES
 # ============================================================
 
 @app.route("/")
-@login_required
 def home():
 
     return render_template(
@@ -2246,7 +2023,6 @@ def home():
 
 
 @app.route("/copilot")
-@login_required
 def copilot_page():
 
     return render_template(
@@ -2255,116 +2031,35 @@ def copilot_page():
 
 
 @app.route("/report-analyzer")
-@login_required
 def report_analyzer_page():
 
     return render_template(
         "report_analyzer.html"
     )
 @app.route("/medicine-analyzer")
-@login_required
 def medicine_analyzer_page():
     return render_template("medicine_analyzer.html")
 
 
 @app.route("/analyze_medicine_text", methods=["POST"])
-@login_required
 def analyze_medicine_text():
-
     try:
-
-        data = request.get_json()
-
-        if not data or "text" not in data:
-            return jsonify({
-                "error": "No medicine text received."
-            }), 400
-
-
-        text = data["text"].strip()
-
+        data = request.get_json() or {}
+        text = str(data.get("text", "")).strip()
 
         if not text:
-            return jsonify({
-                "error": "Medicine text is empty."
-            }), 400
+            return jsonify({"error": "Medicine text is empty."}), 400
 
-
-        # Detect medicine names from OCR text
         medicines = extract_medicines(text)
 
-
-        # ----------------------------------------------------
-        # MEDICINE DETECTED
-        # ----------------------------------------------------
-
         if medicines:
-
-            medicine_name = medicines[0]
-
-
-            # Ask local Gemma for general information
-            ai_answer = generate_ai_health_answer(
-                f"""
-Give general educational information about the medicine
-"{medicine_name}".
-
-Please explain:
-
-1. Common uses
-2. Common side effects
-3. Important precautions
-4. When to contact a doctor
-
-Do NOT give dosage instructions.
-Do NOT prescribe the medicine.
-Do NOT say that the medicine is definitely suitable
-for the user.
-
-Keep the answer simple and easy to understand.
-""",
-                report_context="",
-                knowledge_context=""
-            )
-
-
-            if ai_answer:
-
-                answer = (
-                    f"💊 Medicine: {medicine_name}\n\n"
-                    + ai_answer
-                    + "\n\n"
-                    "⚠️ Please verify the medicine name and "
-                    "strength on the original package or "
-                    "prescription before taking it."
-                )
-
-            else:
-
-                answer = (
-                    f"💊 Medicine detected: {medicine_name}\n\n"
-                    "⚠️ I could not generate additional "
-                    "medicine information right now.\n\n"
-                    "Please verify the medicine name and "
-                    "strength with the original package or "
-                    "a pharmacist/doctor before use."
-                )
-
-
-        # ----------------------------------------------------
-        # MEDICINE NOT DETECTED
-        # ----------------------------------------------------
-
+            answer = build_medicine_answer(medicines[0])
         else:
-
             answer = (
-                "I could read text from the medicine image, "
-                "but I could not confidently identify the "
-                "medicine name.\n\n"
-                "Please upload a clearer image showing the "
-                "medicine name or label."
+                "I could read text from the medicine image, but I could not "
+                "confidently identify the medicine name.\n\n"
+                "Please upload a clearer image showing the medicine name or label."
             )
-
 
         return jsonify({
             "success": True,
@@ -2373,23 +2068,16 @@ Keep the answer simple and easy to understand.
             "answer": answer
         })
 
-
     except Exception as error:
+        print("Medicine text analysis error:", error)
+        return jsonify({"error": str(error)}), 500
 
-        print(
-            "Medicine text analysis error:",
-            error
-        )
-
-        return jsonify({
-            "error": str(error)
-        }), 500
 
        
           
 
+
 @app.route("/medicine-reminder")
-@login_required
 def medicine_reminder():
 
     return render_template(
@@ -2405,7 +2093,6 @@ def medicine_reminder():
     "/ask",
     methods=["POST"]
 )
-@login_required
 def ask():
 
     try:
@@ -2451,7 +2138,6 @@ def ask():
     "/upload",
     methods=["POST"]
 )
-@login_required
 def upload():
 
     try:
@@ -2604,68 +2290,41 @@ def upload():
     "/analyze_medicine",
     methods=["POST"]
 )
-@login_required
 def analyze_medicine():
-
     try:
-
         if "file" not in request.files:
-
             return jsonify({
                 "error": "Please upload a medicine image."
             }), 400
 
-
         file = request.files["file"]
 
+        if not file.filename:
+            return jsonify({
+                "error": "Please select a medicine image."
+            }), 400
 
-        text = extract_image_text(
-            file
-        )
-
+        text = extract_image_text(file)
 
         if not text:
-
             return jsonify({
                 "error": (
-                    "I could not reliably read the medicine "
-                    "name from this image. Please upload a "
-                    "clear photo showing the medicine name "
-                    "or label."
+                    "I could not reliably read the medicine name from this image. "
+                    "Please upload a clear photo showing the medicine name or label."
                 )
             }), 400
 
-
-        medicines = extract_medicines(
-            text
-        )
-
+        medicines = extract_medicines(text)
 
         if medicines:
-
-            answer = (
-                "The following medicine name(s) were "
-                "detected from the image:\n\n"
-                + "\n".join(
-                    "• " + medicine
-                    for medicine in medicines
-                )
-                + "\n\n"
-                "The detected text should be verified "
-                "against the original package or "
-                "prescription before taking any medicine."
-            )
-
+            answer = build_medicine_answer(medicines[0])
         else:
-
             answer = (
-                "I could read some text from the medicine "
-                "image, but I could not confidently "
-                "identify the medicine name.\n\n"
-                "Detected text:\n"
-                + text
+                "I could read some text from the medicine image, but I could not "
+                "confidently identify the medicine name.\n\n"
+                "Detected text:\n" + text + "\n\n"
+                "Please verify the medicine name on the original package."
             )
-
 
         return jsonify({
             "success": True,
@@ -2674,9 +2333,8 @@ def analyze_medicine():
             "answer": answer
         })
 
-
     except Exception as error:
-
+        print("Medicine image analysis error:", error)
         return jsonify({
             "error": str(error)
         }), 500
@@ -2688,7 +2346,6 @@ def analyze_medicine():
 
 @app.route("/health")
 def health():
-
     return jsonify({
         "status": "ok",
         "service": "Health Copilot"
@@ -2700,7 +2357,6 @@ def health():
 # ============================================================
 
 @app.route("/history")
-@login_required
 def history():
 
     try:
@@ -2770,10 +2426,12 @@ if __name__ == "__main__":
         OLLAMA_MODEL
     )
 
+
     print(
         "Knowledge Base Q&A:",
         len(HEALTH_KNOWLEDGE_BASE)
     )
+
 
     print("=" * 60)
 
